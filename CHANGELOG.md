@@ -5,6 +5,13 @@ Work in progress and open threads are tracked in [`DEVELOPMENT.md`](DEVELOPMENT.
 
 ## Unreleased
 
+Nothing yet.
+
+## v0.1.1 — 2026-08-19
+
+Housekeeping release: documentation, reproducible assets, and dead-code removal.
+No behaviour changes.
+
 ### Added
 
 - A demo GIF in the README, showing the environment check, main menu, trending list,

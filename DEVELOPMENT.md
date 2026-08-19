@@ -6,14 +6,14 @@ attribution and licensing in [`COPYRIGHT`](COPYRIGHT).
 
 ## Where the project stands
 
-As of **2026-08-19**, v0.1.0:
+As of **2026-08-19**, v0.1.1:
 
 - Forked from [doccli](https://github.com/TowarzyszFatCat/doccli) v2.40.0 (commit `eeb1aaf`).
 - **Detached from the GitHub fork network** — `otacli` is a standalone repository, not a
   fork. This is permanent and cannot be undone.
 - Upstream was notified as a courtesy in
   [TowarzyszFatCat/doccli#31](https://github.com/TowarzyszFatCat/doccli/issues/31).
-- v0.1.0 is tagged and released. No `.exe` asset is attached.
+- v0.1.0 and v0.1.1 are tagged and released. No `.exe` asset is attached to either.
 - Nothing from upstream's identity remains in the code: no Discord application, no AniList
   client ID, no links to their community or donation page, and new icons and artwork.
 
@@ -77,10 +77,25 @@ there is no central state machine to hook into.
 
 ## Release process
 
-1. Update `VERSION` in `run.py` and `MyAppVersion` in `installer.iss` — keep them equal.
-2. Add the release to `CHANGELOG.md`, moving items out of `Unreleased`.
-3. Commit, then `git tag -a vX.Y.Z` and push the tag.
-4. `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file <notes>`.
+The version appears in **four** places and they drift silently:
+
+1. `VERSION` in `run.py` (the source of truth).
+2. `MyAppVersion` in `installer.iss` — same number, without the leading `v`.
+3. The version badge in `README.md`.
+4. The main-menu banner in `src/menus_decor.py`, which spells the version out in ASCII
+   art. Regenerate it rather than editing by hand:
+
+   ```bash
+   python3 -m venv /tmp/bannerenv && /tmp/bannerenv/bin/pip install pyfiglet
+   /tmp/bannerenv/bin/python tools/make_banner.py          # rewrites the banner
+   /tmp/bannerenv/bin/python tools/make_banner.py --check   # non-zero if stale
+   ```
+
+Then:
+
+5. Move the entries out of `Unreleased` into a new section in `CHANGELOG.md`.
+6. Commit, then `git tag -a vX.Y.Z` and push the tag.
+7. `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file <notes>`.
 
 **The release title must exactly equal `VERSION` in `run.py`.** The update check
 (`run.py:106`) compares the release's `name` field against `VERSION` as a plain string —

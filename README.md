@@ -10,7 +10,7 @@ Watch anime from your terminal.
 <p align="center">
 <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-blue.svg" alt="License: GPL-3.0"></a>
 <img src="https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey.svg" alt="Platform">
-<img src="https://img.shields.io/badge/version-v0.1.0-green.svg" alt="Version">
+<img src="https://img.shields.io/badge/version-v0.1.1-green.svg" alt="Version">
 </p>
 
 <p align="center">

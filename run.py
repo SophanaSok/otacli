@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src
 from main_module import m_welcome
 from i18n import t
 
-VERSION = "v0.1.0"
+VERSION = "v0.1.1"
 
 def get_cmd_version(cmd, args=["--version"]):
     try:

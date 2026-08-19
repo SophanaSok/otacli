@@ -4,6 +4,8 @@ Development scripts. None of them is needed to run otacli.
 
 `make_icons.py` and the `demo.tape`/`Dockerfile.demo` pair generate the repository's
 assets, so those are reproducible rather than unexplained binaries.
+`make_banner.py` regenerates the main-menu ASCII banner, which spells out the version and
+would otherwise go stale on every release.
 `find_dead_imports.py` is a small static check standing in for the linter the project
 does not have — run `python3 tools/find_dead_imports.py` from the repository root.
 
@@ -19,6 +21,19 @@ python3 -m venv /tmp/iconenv && /tmp/iconenv/bin/pip install pillow
 
 Writes `icon_1.png` (512px, used by the README and the Windows installer's wizard
 image) and `icon.ico` (multi-size, used by the installer and shortcuts).
+
+## `make_banner.py` — the `MAIN_MENU` banner in `src/menus_decor.py`
+
+The banner is figlet "big" text reading `OTACLI <version>`, so it must be rebuilt whenever
+`VERSION` in `run.py` changes. It needs `pyfiglet`:
+
+```bash
+python3 -m venv /tmp/bannerenv && /tmp/bannerenv/bin/pip install pyfiglet
+/tmp/bannerenv/bin/python tools/make_banner.py           # rewrite in place
+/tmp/bannerenv/bin/python tools/make_banner.py --check    # exits non-zero if stale
+```
+
+The `--check` form belongs in the release checklist in [`../DEVELOPMENT.md`](../DEVELOPMENT.md).
 
 ## `demo.tape` + `Dockerfile.demo` — `demo.gif`
 
