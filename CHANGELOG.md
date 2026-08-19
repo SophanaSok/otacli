@@ -1,6 +1,24 @@
 # Changelog
 
 All notable changes to otacli are documented here.
+Work in progress and open threads are tracked in [`DEVELOPMENT.md`](DEVELOPMENT.md).
+
+## Unreleased
+
+### Added
+
+- A demo GIF in the README, showing the environment check, main menu, trending list,
+  fuzzy search and a series page with cover art. Recorded with `vhs` in a container.
+- `tools/` — development scripts: `make_icons.py` and `demo.tape`/`Dockerfile.demo`
+  regenerate the repository's assets (both verified to reproduce the committed files), and
+  `find_dead_imports.py` is a static check standing in for the absent linter.
+- `DEVELOPMENT.md` — project state, architecture map, release process, and the list of
+  open work.
+
+### Fixed
+
+- Removed an unused `storage` import left in `src/downloader.py` after the
+  interface-language settings were dropped in v0.1.0.
 
 ## v0.1.0 — 2026-08-19
 

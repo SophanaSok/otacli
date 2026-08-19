@@ -134,6 +134,9 @@ Everything except AniList sync works without this.
 Issues and pull requests are welcome at
 [github.com/SophanaSok/otacli](https://github.com/SophanaSok/otacli/issues).
 
+[`DEVELOPMENT.md`](DEVELOPMENT.md) has the architecture map, the release process, the
+sharp edges worth knowing before changing a menu, and the current list of open work.
+
 If a bug also reproduces in doccli, it is worth reporting
 [upstream](https://github.com/TowarzyszFatCat/doccli/issues) as well — they are the larger
 project and fixes there help more people.

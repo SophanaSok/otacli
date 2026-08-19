@@ -13,7 +13,6 @@ from docchi_api_connector import extract_lycoris_direct_link, get_players_list, 
 from ui_utils import clear, open_menu
 from anilist_connector import get_quick_episode_count
 from i18n import t
-from storage import ds
 
 def w_download_season(details, episodes_list=None, base_download_dir=""):
     SLUG = details['slug']
