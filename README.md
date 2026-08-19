@@ -13,6 +13,10 @@ Watch anime from your terminal.
 <img src="https://img.shields.io/badge/version-v0.1.0-green.svg" alt="Version">
 </p>
 
+<p align="center">
+  <img src="demo.gif" alt="otacli in a terminal: the main menu, browsing trending anime, fuzzy-searching by title, and a series page with cover art, synopsis, score and genres" width="100%">
+</p>
+
 ---
 
 > **otacli is an independent project derived from [doccli](https://github.com/TowarzyszFatCat/doccli)
