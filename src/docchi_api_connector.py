@@ -1,12 +1,9 @@
 import re
-import time
-import subprocess
 import json
 import difflib
 
 # From pip
 from requests import get
-from termcolor import colored
 from curl_cffi import requests as cffi_requests
 
 # otacli modules

@@ -112,15 +112,12 @@ manual-update message.
 
 **Known rough edges inherited from upstream, none urgent:**
 
-- **13 dead imports** inherited from upstream, in `src/main_module.py` and
-  `src/docchi_api_connector.py`. Run `python3 tools/find_dead_imports.py` for the current
-  list. Harmless, but they make the import block misleading about what a module actually
-  touches.
 - `installer.iss` packs the whole directory with `Source: "*"` excluding only `*.iss`, so
   building from a working checkout would ship `.git` and `__pycache__`.
 - Menu recursion means a long session grows the call stack indefinitely. Not a practical
   problem at human navigation speeds, but it rules out very long-lived sessions.
-- No test suite, no CI, no linter configuration.
+- No test suite, no CI, no linter configuration. `python3 tools/find_dead_imports.py`
+  covers one narrow case and currently reports nothing.
 
 **Ideas, not commitments:**
 

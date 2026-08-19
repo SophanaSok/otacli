@@ -17,6 +17,10 @@ Work in progress and open threads are tracked in [`DEVELOPMENT.md`](DEVELOPMENT.
 
 ### Fixed
 
+- Removed 13 unused imports inherited from upstream, in `src/main_module.py` and
+  `src/docchi_api_connector.py`. `subprocess.DEVNULL` is still used in `main_module`, via
+  the module-level `import subprocess` — it was the separate `from subprocess import
+  Popen, DEVNULL` line that was dead.
 - Removed an unused `storage` import left in `src/downloader.py` after the
   interface-language settings were dropped in v0.1.0.
 

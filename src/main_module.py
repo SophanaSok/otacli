@@ -1,12 +1,9 @@
 import os
 import sys
-import re
 import time
 import shutil
-import tempfile
 import webbrowser
 import subprocess
-from subprocess import Popen, DEVNULL
 import threading
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
@@ -21,9 +18,9 @@ from cache import preload_series_cache, get_cached_series_list, get_cached_trend
 from ui_utils import clear, open_menu
 from downloader import w_download_season
 from stats import m_stats
-from menus_decor import MAIN_MENU, SEARCH, TRENDING, MY_LIST, HISTORY, MY_LIBRARY, CALENDAR, NOTIFICATIONS
-from docchi_api_connector import get_episodes_count_for_serie, get_players_list, get_details_for_serie, extract_lycoris_direct_link, get_english_players
-from anilist_connector import get_details_from_anilist, update_anilist_progress, get_anilist_plan_to_watch, sync_anilist_list_status, get_anilist_history, get_duration_by_malid, sync_history_with_anilist, get_quick_episode_count
+from menus_decor import MAIN_MENU, SEARCH, TRENDING, MY_LIST, HISTORY, CALENDAR, NOTIFICATIONS
+from docchi_api_connector import get_players_list, get_details_for_serie, extract_lycoris_direct_link, get_english_players
+from anilist_connector import get_details_from_anilist, get_anilist_plan_to_watch, sync_anilist_list_status, get_quick_episode_count
 from player import mpv_play, kill_process, delayed_tracker
 from local_lib import m_local_library
 from i18n import t
