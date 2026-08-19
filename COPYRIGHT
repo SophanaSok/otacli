@@ -1,0 +1,54 @@
+otacli
+======
+
+otacli is a derivative work of doccli, an anime CLI written by TowarzyszFatCat
+and contributors. It is maintained independently and is not affiliated with,
+endorsed by, or supported by the doccli project.
+
+Original work
+-------------
+
+    doccli
+    Copyright (C) 2024-2026 TowarzyszFatCat and contributors
+    https://github.com/TowarzyszFatCat/doccli
+
+    Contributors to the original work, per its git history:
+    TowarzyszFatCat (tfc), ChonkChum, jckpt, Adam Perkowski
+
+Derivative work
+---------------
+
+    otacli
+    Copyright (C) 2026 Sophana Sok and contributors
+    https://github.com/SophanaSok/otacli
+
+Changes made
+------------
+
+otacli was forked from doccli v2.40.0 (commit eeb1aaf) on 2026-08-19.
+The modifications made since that point are recorded in CHANGELOG.md and in
+this repository's git history. A summary of the initial divergence:
+
+  * Removed the Discord Rich Presence integration, which was tied to the
+    doccli project's registered Discord application.
+  * Removed the doccli project's AniList API client ID; otacli requires its
+    own to be configured.
+  * Removed links to the doccli project's Discord server and donation page.
+  * Removed the Polish user interface; otacli's interface is English only.
+    The streaming sources it reads remain Polish.
+  * Replaced the application icons and menu artwork.
+  * Renamed the program, its command, and its configuration directory.
+
+License
+-------
+
+otacli is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+The full license text is in LICENSE.

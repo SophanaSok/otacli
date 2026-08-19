@@ -9,7 +9,7 @@ from rich.panel import Panel
 from rich.table import Table
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from storage import ds
 from ui_utils import clear
 from anilist_connector import get_anilist_global_stats, get_anilist_advanced_stats
@@ -20,7 +20,7 @@ def get_folder_size():
     if ds.settings.get("download_path") != "":
         folder_path = ds.settings["download_path"]
     else:
-        folder_path = os.path.join(os.getcwd(), "doccli_downloads")
+        folder_path = os.path.join(os.getcwd(), "otacli_downloads")
 
     total_size = 0
     if os.path.exists(folder_path):
@@ -61,8 +61,8 @@ def get_user_rank(hours):
 def m_stats():
     clear()
 
-    ep_doccli = 0
-    minutes_doccli = 0
+    ep_otacli = 0
+    minutes_otacli = 0
     
     # --- OBLICZANIE NAWYKÓW ---
     maraton_dict = {}
@@ -80,14 +80,15 @@ def m_stats():
         is_offline = False
         
         if isinstance(item, dict):
-            if item.get("source", "").startswith("Doccli"):
-                ep_doccli += 1
-                minutes_doccli += item.get("duration", 21)
+            # "Doccli" covers history carried over from before the rename
+            if item.get("source", "").startswith(("otacli", "Doccli")):
+                ep_otacli += 1
+                minutes_otacli += item.get("duration", 21)
                 date_str = item.get("dt_string", "")
                 is_offline = "Offline" in item.get("source", "")
         elif isinstance(item, str):
-            ep_doccli += 1
-            minutes_doccli += 21
+            ep_otacli += 1
+            minutes_otacli += 21
             date_str = item[1:17] if len(item) > 17 else ""
             is_offline = "| Offline" in item
             
@@ -120,12 +121,12 @@ def m_stats():
         ep_anilist, minutes_anilist = get_anilist_global_stats(ds.settings["anilist_token"])
         adv_stats = get_anilist_advanced_stats(ds.settings["anilist_token"])
 
-    ep_total = max(ep_doccli, ep_anilist) if has_token else ep_doccli
-    minutes_total = max(minutes_doccli, minutes_anilist) if has_token else minutes_doccli
+    ep_total = max(ep_otacli, ep_anilist) if has_token else ep_otacli
+    minutes_total = max(minutes_otacli, minutes_anilist) if has_token else minutes_otacli
     
-    percent_doccli = 0
+    percent_otacli = 0
     if ep_total > 0:
-        percent_doccli = round((ep_doccli / ep_total) * 100, 1)
+        percent_otacli = round((ep_otacli / ep_total) * 100, 1)
 
     ti_c = pathlib.Path(ds.config_dir).stat().st_mtime
     dt_c = datetime.fromtimestamp(ti_c).strftime("%d/%m/%Y")
@@ -134,15 +135,15 @@ def m_stats():
     now_dt = date.today()
     delta_dt = now_dt - creation_dt
 
-    # Średnia tygodniowa w doccli
+    # Średnia tygodniowa w otacli
     weeks = max(1, delta_dt.days / 7.0)
-    weekly_avg = round(ep_doccli / weeks, 1)
+    weekly_avg = round(ep_otacli / weeks, 1)
 
     hours = minutes_total // 60
     minutes = minutes_total % 60
     
-    doccli_hours = minutes_doccli // 60
-    doccli_minutes = minutes_doccli % 60
+    otacli_hours = minutes_otacli // 60
+    otacli_minutes = minutes_otacli % 60
     
     size_bytes = get_folder_size()
     size_gb = round(size_bytes / (1024 ** 3), 2)
@@ -156,7 +157,7 @@ def m_stats():
             clean_title = raw_history.split("]", 1)[1].strip() if "]" in raw_history else raw_history
         last_watched = clean_title[:32] + "..." if len(clean_title) > 35 else clean_title
 
-    user_rank = get_user_rank(doccli_hours)
+    user_rank = get_user_rank(otacli_hours)
     console = Console()
 
     # --- OBLICZANIE SZEROKOŚCI RESPONSYWNEJ ---
@@ -175,8 +176,8 @@ def m_stats():
     table_activity.add_column("Statystyka", style="cyan")
     table_activity.add_column("Wartość", justify="right")
     table_activity.add_row(t("stat_lbl_rank"), user_rank)
-    table_activity.add_row(t("stat_lbl_doccli_eps"), f"[cyan]{ep_doccli}[/cyan]")
-    table_activity.add_row(t("stat_lbl_doccli_time"), f"[cyan]{doccli_hours}h {doccli_minutes}m[/cyan]")
+    table_activity.add_row(t("stat_lbl_otacli_eps"), f"[cyan]{ep_otacli}[/cyan]")
+    table_activity.add_row(t("stat_lbl_otacli_time"), f"[cyan]{otacli_hours}h {otacli_minutes}m[/cyan]")
     table_activity.add_row(t("stat_lbl_total_eps"), f"[red]{ep_total}[/red]")
     table_activity.add_row(t("stat_lbl_total_time"), f"[cyan]{hours}h {minutes}m[/cyan]")
     table_activity.add_row(t("stat_lbl_last"), f"[white]{last_watched}[/white]")
@@ -185,8 +186,8 @@ def m_stats():
     table_habits = Table(show_header=False, box=None, padding=(0, 2), expand=True)
     table_habits.add_column("Statystyka", style="cyan")
     table_habits.add_column("Wartość", justify="right")
-    table_habits.add_row(t("stat_lbl_marathon"), f"[red]{max_maraton}[/red] odc. ({max_maraton_date})")
-    table_habits.add_row(t("stat_lbl_weekly"), f"[yellow]{weekly_avg}[/yellow] odc.")
+    table_habits.add_row(t("stat_lbl_marathon"), f"[red]{max_maraton}[/red] {t("stat_unit_eps")} ({max_maraton_date})")
+    table_habits.add_row(t("stat_lbl_weekly"), f"[yellow]{weekly_avg}[/yellow] {t("stat_unit_eps")}")
     table_habits.add_row(t("stat_lbl_prime_time"), f"[cyan]{ulubiona_pora}[/cyan]")
     table_habits.add_row(t("stat_lbl_net_disk"), f"[cyan]{online_count}[/cyan] {t('stat_net_str')} / [green]{offline_count}[/green] {t('stat_disk_str')}")
 
@@ -210,7 +211,7 @@ def m_stats():
     table_app = Table(show_header=False, box=None, padding=(0, 2), expand=True)
     table_app.add_column("Statystyka", style="cyan")
     table_app.add_column("Wartość", justify="right")
-    table_app.add_row(t("stat_lbl_share"), f"[yellow]{percent_doccli}%[/yellow]")
+    table_app.add_row(t("stat_lbl_share"), f"[yellow]{percent_otacli}%[/yellow]")
     table_app.add_row(t("stat_lbl_size"), f"[green]{size_gb} GB[/green]")
     table_app.add_row(t("stat_lbl_install"), f"[white]{dt_c}[/white]")
     table_app.add_row(t("stat_lbl_age"), f"[white]{delta_dt.days} {t('stat_days')}[/white]")

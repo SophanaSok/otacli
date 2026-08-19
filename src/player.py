@@ -8,7 +8,7 @@ from datetime import datetime
 from subprocess import Popen, DEVNULL
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from storage import ds
 from docchi_api_connector import extract_lycoris_direct_link
 from anilist_connector import get_duration_by_malid, update_anilist_progress, generate_aniskip_chapters
@@ -41,7 +41,7 @@ def mpv_play(URL, quality="best", mal_id=None, ep_number=None):
         sys.exit()
         
     temp_dir = tempfile.gettempdir()
-    chapters_file = os.path.join(temp_dir, "doccli_chapters")
+    chapters_file = os.path.join(temp_dir, "otacli_chapters")
 
     generate_aniskip_chapters(mal_id, ep_number, chapters_file)
 
@@ -61,7 +61,7 @@ def mpv_play(URL, quality="best", mal_id=None, ep_number=None):
     details = ds.continue_data[0]
     
     # Wyświetlanie poprawnego tytułu w oknie MPV w zależności od języka programu
-    if ds.settings.get("language") == "en" and details and details.get('title_en'):
+    if details and details.get('title_en'):
         anime_title = details.get('title_en')
     else:
         anime_title = details.get('title', t("player_unknown_anime")) if details else t("player_unknown_anime")
@@ -139,7 +139,7 @@ def delayed_tracker(details, number, process, total_episodes):
         "title": details['title'],
         "title_en": details['title_en'],
         "episode": str(number),
-        "source": "Doccli - Online",
+        "source": "otacli - Online",
         "slug": details['slug'],
         "duration": duration
     }

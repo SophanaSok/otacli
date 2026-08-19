@@ -1,0 +1,3 @@
+#!/bin/bash
+
+~/.otacli_src/.venv/bin/python ~/.otacli_src/run.py

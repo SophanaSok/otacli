@@ -1,50 +1,40 @@
-<h1 align="center">Disclaimer</h1>
+# Disclaimer
 
-<div align="center">
+**Project: otacli**
 
-<h2>This project: doccli</h2>
+otacli combines automation and convenience to retrieve what is already served to a user on the
+internet. All content reachable through this project is hosted by external, unaffiliated sources.
 
-<br>
+Everything otacli can reach is publicly accessible. If your site appears in this project, its
+endpoints are already public — take whatever measures you consider necessary against the access
+patterns used to retrieve content from it.
 
-The core aim of this project is to co-relate automation and efficiency to extract what is provided to a user on the internet. All content available through the project is hosted by external non-affiliated sources. 
+Think of this project as a browser that is narrower and more direct. Where an ordinary browser
+makes hundreds of requests to render a page, otacli makes only the requests needed to reach the
+content the site already serves.
 
-<br>
+**Use this project at your own risk and in accordance with the laws that apply to you.** otacli
+has no control over the content it provides access to, hosts none of it, and stores none of it.
+Responsibility for how it is used, including any use of copyrighted material, rests with the user.
 
-<b>All content served through this project is publicly accessible. If your site is listed in this project, the code is pretty much public. Take necessary measures to counter the exploits used to extract content in your site.</b>
+## DMCA and copyright
 
-Think of this project as your normal browser, but a bit more straight-forward and specific. While an average browser makes hundreds of requests to get everything from a site, this project goes on to only make requests associated with getting the content served by the sites.
+A browser is a tool, and the maliciousness of a tool depends on the person using it.
 
-<b>
+otacli uses client-side access mechanisms only. Copyright or DMCA claims concerning content
+reached through this project should therefore be directed at the site hosting that content, by
+the party making the claim. At the time of writing those sites are
+[docchi.pl](https://docchi.pl/) and [anidb.app](https://anidb.app/).
 
-This project is to be used at the user's own risk, based on their government and laws.
+## Contact
 
-This project has no control on the content it is serving, using copyrighted content from the providers is not going to be accounted for by the developer. It is the user's own risk.
+Open an issue at [github.com/SophanaSok/otacli/issues](https://github.com/SophanaSok/otacli/issues).
 
-</b>
+**Do not contact the doccli project about otacli.** otacli is an independent derivative and its
+maintainers are not responsible for it. See [`COPYRIGHT`](COPYRIGHT).
 
+## No warranty
 
-<br>
-
-<h2>DMCA and Copyright Infrigements</h3>
-
-<br>
-
-<b>
-
-A browser is a tool, and the maliciousness of the tool is directly based on the user.
-</b>
-
-
-This project uses client-side content access mechanisms. Hence, the copyright infrigements or DMCA in this project's regards are to be forwarded to the associated site by the associated notifier of any such claims. This is one of the main reasons the sites are listed in this project.
-
-<b>Do not harass the developer. Any personal information about the developer is intentionally not made public. Exploiting such information without consent in regards to this topic will lead to legal actions by the developer themselves.</b>
-
-
-<h3>
-Contacting the developer
-</h3>
-<br>
-
-Begin by making a GitHub issue or contact on discord
-
-</div>
+otacli is distributed under GPL-3.0 in the hope that it will be useful, but **WITHOUT ANY
+WARRANTY**; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE. See [`LICENSE`](LICENSE).

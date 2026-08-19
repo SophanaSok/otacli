@@ -1,88 +1,76 @@
 #!/bin/bash
+set -e
 
 CYAN='\033[1;36m'
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
+RED='\033[1;31m'
 BLUE='\033[1;34m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}Wybierz język instalacji / Choose installation language:${NC}"
-echo "1) Polski"
-echo "2) English"
-read -p "> " lang_choice
+# Resolve the checkout this script lives in, so the clone directory can be named anything
+SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEST_DIR="$HOME/.otacli_src"
 
-if [ "$lang_choice" = "2" ]; then
-    MSG_START="       Starting Doccli installation...      "
-    MSG_STEP1="[1/5] Checking system packages (mpv, wget)..."
-    MSG_STEP2="[2/5] Removing outdated yt-dlp versions..."
-    MSG_STEP3="[3/5] Downloading the latest yt-dlp version..."
-    MSG_STEP4="[4/5] Configuring program files..."
-    MSG_STEP5="[5/5] Configuring Python libraries (this may take a while)..."
-    MSG_DONE="[+] Installation completed successfully!"
-    MSG_INFO="[i] You can now type the "
-    MSG_INFO_CMD="doccli"
-    MSG_INFO2=" command in the terminal."
-else
-    MSG_START="      Rozpoczynam instalację Doccli...      "
-    MSG_STEP1="[1/5] Sprawdzam pakiety systemowe (mpv, wget)..."
-    MSG_STEP2="[2/5] Usuwam przestarzałe wersje yt-dlp..."
-    MSG_STEP3="[3/5] Pobieram najnowszą wersję yt-dlp od twórców..."
-    MSG_STEP4="[4/5] Konfiguruję pliki programu..."
-    MSG_STEP5="[5/5] Konfiguruję biblioteki Pythona (może to chwilę potrwać)..."
-    MSG_DONE="[+] Instalacja zakończona sukcesem!"
-    MSG_INFO="[i] Możesz teraz wpisać polecenie "
-    MSG_INFO_CMD="doccli"
-    MSG_INFO2=" w terminalu."
-fi
-
-clear
-
+clear 2>/dev/null || true
 echo -e "${CYAN}====================================================${NC}"
-echo -e "${GREEN}${MSG_START}${NC}"
+echo -e "${GREEN}       Starting otacli installation...      ${NC}"
 echo -e "${CYAN}====================================================${NC}\n"
 
-echo -e "${YELLOW}${MSG_STEP1}${NC}"
-sudo apt-get update
-sudo apt-get install -y mpv wget chafa
+echo -e "${YELLOW}[1/5] Installing system packages (mpv, chafa, wget)...${NC}"
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -S --needed --noconfirm mpv chafa wget python python-pip libjxl
+elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get update
+    sudo apt-get install -y mpv chafa wget python3-pip python3-venv
+elif command -v dnf >/dev/null 2>&1; then
+    sudo dnf install -y mpv chafa wget python3-pip
+else
+    echo -e "${RED}[!] No supported package manager found (pacman/apt-get/dnf).${NC}"
+    echo -e "${RED}    Install mpv, chafa, wget and python3 (with pip and venv) yourself, then re-run.${NC}"
+    exit 1
+fi
 echo ""
 
-echo -e "${YELLOW}${MSG_STEP2}${NC}"
-sudo apt-get remove -y yt-dlp
+echo -e "${YELLOW}[2/5] Removing outdated yt-dlp versions...${NC}"
+if command -v pacman >/dev/null 2>&1; then
+    sudo pacman -Rns --noconfirm yt-dlp 2>/dev/null || true
+elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get remove -y yt-dlp || true
+fi
 echo ""
 
-echo -e "${YELLOW}${MSG_STEP3}${NC}"
-sudo wget https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
+echo -e "${YELLOW}[3/5] Downloading the latest yt-dlp...${NC}"
+sudo wget -q --show-progress https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -O /usr/local/bin/yt-dlp
 sudo chmod a+rx /usr/local/bin/yt-dlp
 echo ""
 
-echo -e "${YELLOW}${MSG_STEP4}${NC}"
-sudo chmod +x doccli/doccli
-sudo mv doccli/doccli /usr/local/bin
-
-sudo mv doccli ~/.doccli_src
-
-sudo chown -R $USER:$USER ~/.doccli_src
-
-find ~/.doccli_src -type d -exec chmod 755 {} \;
-find ~/.doccli_src -type f -exec chmod 644 {} \;
-echo ""
-
-echo -e "${YELLOW}${MSG_STEP5}${NC}"
-cd ~/.doccli_src && python3 -m venv .venv
-cd ~/.doccli_src && .venv/bin/pip install requests inquirerpy termcolor pillow deep-translator rich curl-cffi
-cd ~/.doccli_src && .venv/bin/pip install https://github.com/qwertyquerty/pypresence/archive/master.zip
-echo ""
-
-mkdir -p ~/.config/doccli
-if [ ! -f ~/.config/doccli/settings.json ]; then
-    if [ "$lang_choice" = "2" ]; then
-        echo '{"language": "en"}' > ~/.config/doccli/settings.json
-    else
-        echo '{"language": "pl"}' > ~/.config/doccli/settings.json
-    fi
+echo -e "${YELLOW}[4/5] Configuring program files...${NC}"
+if [ -d "$DEST_DIR" ]; then
+    echo -e "${YELLOW}    Existing install found, replacing $DEST_DIR${NC}"
+    rm -rf "$DEST_DIR"
 fi
 
+cp -r "$SRC_DIR" "$DEST_DIR"
+rm -rf "$DEST_DIR/.git" "$DEST_DIR/.venv"
+find "$DEST_DIR" -name "__pycache__" -type d -prune -exec rm -rf {} +
+
+sudo install -m 755 "$DEST_DIR/otacli" /usr/local/bin/otacli
+rm -f "$DEST_DIR/otacli"
+
+find "$DEST_DIR" -type d -exec chmod 755 {} \;
+find "$DEST_DIR" -type f -exec chmod 644 {} \;
+echo ""
+
+echo -e "${YELLOW}[5/5] Configuring Python libraries (this may take a while)...${NC}"
+python3 -m venv "$DEST_DIR/.venv"
+"$DEST_DIR/.venv/bin/pip" install --quiet --upgrade pip
+"$DEST_DIR/.venv/bin/pip" install --quiet requests inquirerpy termcolor pillow rich curl-cffi
+echo ""
+
+mkdir -p "$HOME/.config/otacli"
+
 echo -e "${GREEN}====================================================${NC}"
-echo -e "${GREEN} ${MSG_DONE}${NC}"
-echo -e "${BLUE} ${MSG_INFO}${YELLOW}${MSG_INFO_CMD}${BLUE}${MSG_INFO2}${NC}"
+echo -e "${GREEN} [+] Installation completed successfully!${NC}"
+echo -e "${BLUE} [i] You can now run ${YELLOW}otacli${BLUE} in your terminal.${NC}"
 echo -e "${GREEN}====================================================${NC}"

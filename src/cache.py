@@ -3,7 +3,7 @@ import time
 # From pip
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from anilist_connector import get_trending_anime_malids
 from docchi_api_connector import get_series_list
 from ui_utils import clear

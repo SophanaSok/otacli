@@ -5,12 +5,12 @@ from datetime import datetime
 # From pip
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from storage import ds
 from ui_utils import clear, open_menu
 from cache import get_cached_series_list
 from anilist_connector import get_duration_by_malid
-from menus_decor import MOJA_BIBLIOTEKA
+from menus_decor import MY_LIBRARY
 from i18n import t
 
 
@@ -25,7 +25,7 @@ def m_local_library():
         downloads_dir = dl_path
     else:
         current_dir = os.getcwd()
-        downloads_dir = os.path.join(current_dir, "doccli_downloads")
+        downloads_dir = os.path.join(current_dir, "otacli_downloads")
     
     if not os.path.exists(downloads_dir):
         print(colored(t("lib_err_no_dir").format(downloads_dir), "red"))
@@ -50,7 +50,7 @@ def m_local_library():
         choices=series_list, 
         prompt=t("lib_prompt_series"), 
         height=10, 
-        message=MOJA_BIBLIOTEKA
+        message=MY_LIBRARY
     )
     
     if selected_series == t("menu_main"):
@@ -76,7 +76,7 @@ def m_local_library():
             choices=choices, 
             prompt=t("lib_prompt_ep").format(selected_series), 
             height=10, 
-            message=MOJA_BIBLIOTEKA
+            message=MY_LIBRARY
         )
         
         if selected_ep == t("lib_back_to_series"):
@@ -106,7 +106,7 @@ def m_local_library():
                     "title": selected_series,
                     "title_en": selected_series,
                     "episode": ep,
-                    "source": "Doccli - Offline",
+                    "source": "otacli - Offline",
                     "slug": None,
                     "duration": duration
                 }
@@ -147,7 +147,7 @@ def m_local_library():
                 "title": selected_series,
                 "title_en": selected_series,
                 "episode": selected_ep,
-                "source": "Doccli - Offline",
+                "source": "otacli - Offline",
                 "slug": None,
                 "duration": duration 
             }

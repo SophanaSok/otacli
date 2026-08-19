@@ -9,6 +9,10 @@ __pycache__/
 *.pyo
 
 *.zip
-doccli_downloads/
+otacli_downloads/
 
 src/ALLIN.txt
+
+# IDE
+.idea/
+.vscode/

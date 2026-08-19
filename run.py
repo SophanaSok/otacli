@@ -3,21 +3,18 @@ import sys
 import re
 import shutil
 import subprocess
-import threading
 import time
 
 # From pip
 from requests import exceptions, get
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src")) # Drurne obejście
-from discord_integration import set_running, start_rpc
 from main_module import m_welcome
 from i18n import t
-from storage import ds
 
-VERSION = "v2.40.0"
+VERSION = "v0.1.0"
 
 def get_cmd_version(cmd, args=["--version"]):
     try:
@@ -41,7 +38,7 @@ def get_latest_ytdlp_version():
 def check_dependencies() -> bool:
     requires_action = False
     
-    print(colored(f"--- Doccli {VERSION} ---", "yellow"))
+    print(colored(f"--- otacli {VERSION} ---", "yellow"))
     print(colored(t("run_env_check"), "cyan"))
     
     # 1. Wymagane: yt-dlp
@@ -100,7 +97,7 @@ def check_dependencies() -> bool:
 def check_update() -> bool:
     try:
         response = get(
-            "https://api.github.com/repos/TowarzyszFatCat/doccli/releases/latest",
+            "https://api.github.com/repos/SophanaSok/otacli/releases/latest",
             timeout=5
         )
         response.raise_for_status()
@@ -137,14 +134,14 @@ def check_update() -> bool:
                         return True
                 else:
                     print(colored(t("run_upd_manual"), "white"))
-                    print(colored("https://github.com/TowarzyszFatCat/doccli", "cyan"))
+                    print(colored("https://github.com/SophanaSok/otacli", "cyan"))
                     print("")
                     return True
                     
             # DLA LINUX / MACOS ---
             else:
                 print(colored(t("run_upd_manual"), "white"))
-                print(colored("https://github.com/TowarzyszFatCat/doccli", "cyan"))
+                print(colored("https://github.com/SophanaSok/otacli", "cyan"))
                 print("")
                 return True
             
@@ -160,7 +157,7 @@ def perform_update_windows(download_url):
     
     try:
         req = get(download_url, stream=True)
-        exe_path = os.path.join(tempfile.gettempdir(), "Doccli_Update.exe")
+        exe_path = os.path.join(tempfile.gettempdir(), "otacli_Update.exe")
         
         with open(exe_path, 'wb') as f:
             for chunk in req.iter_content(chunk_size=8192):
@@ -169,8 +166,7 @@ def perform_update_windows(download_url):
         print(colored(t("run_upd_dl_ok"), "green"))
 
 
-        lang_flag = "/LANG=english" if ds.settings.get("language") == "en" else "/LANG=polish"
-        subprocess.Popen([exe_path, "/SILENT", "/SUPPRESSMSGBOXES", "/FORCECLOSEAPPLICATIONS", lang_flag])
+        subprocess.Popen([exe_path, "/SILENT", "/SUPPRESSMSGBOXES", "/FORCECLOSEAPPLICATIONS"])
         sys.exit()
         
     except Exception as e:
@@ -188,9 +184,5 @@ if __name__ == "__main__":
         input(colored(t("run_enter_cont"), "yellow"))
     else:
         time.sleep(2)
-    
-    set_running(True)
-    thread = threading.Thread(target=start_rpc)
-    thread.start()
     
     m_welcome()

@@ -1,12 +1,15 @@
 import os
 import json
+import shutil
 
 class DataStorage:
     def __init__(self):
         if os.name == "nt": # WIN
-            self.config_dir = os.path.join(os.getenv("APPDATA"), "doccli")
+            self.config_dir = os.path.join(os.getenv("APPDATA"), "otacli")
+            self.legacy_config_dir = os.path.join(os.getenv("APPDATA"), "doccli")
         else:               # LINUX/MACOS
-            self.config_dir = os.path.join(os.path.expanduser("~"), ".config", "doccli")
+            self.config_dir = os.path.join(os.path.expanduser("~"), ".config", "otacli")
+            self.legacy_config_dir = os.path.join(os.path.expanduser("~"), ".config", "doccli")
 
         # Ścieżki do plików
         self.path_mylist = os.path.join(self.config_dir, "mylist.json")
@@ -21,13 +24,10 @@ class DataStorage:
         
         # Domyślne ustawienia
         self.settings = {
-            "rpc_enabled": True,
-            "rpc_status": "Watching anime via doccli!",
             "auto_sync": True,
             "anilist_token": "",
             "download_path": "",
             "player_quality": "best",
-            "language": "pl",
             "unread_notifications": [],
             "notification_history": [],
             "known_eps": {}
@@ -39,6 +39,7 @@ class DataStorage:
         """Wczytuje dane z dysku do zmiennych i w razie potrzeby aktualizuje strukturę plików."""
         if not os.path.exists(self.config_dir):
             os.makedirs(self.config_dir)
+            self.import_legacy_data()
 
         # Moja lista
         if not os.path.exists(self.path_mylist):
@@ -67,8 +68,7 @@ class DataStorage:
             
             # MIGRACJA: Jeśli u kogoś na dysku ustawienia to stara lista, przerób ją na słownik
             if isinstance(loaded_settings, list):
-                self.settings["rpc_enabled"] = loaded_settings[0] if len(loaded_settings) > 0 else True
-                self.settings["rpc_status"] = loaded_settings[1] if len(loaded_settings) > 1 else "Używa doccli!"
+                # indices 0 and 1 held the Discord RPC pair, which this project no longer has
                 self.settings["auto_sync"] = loaded_settings[2] if len(loaded_settings) > 2 else True
                 self.settings["anilist_token"] = loaded_settings[3] if len(loaded_settings) > 3 else ""
                 self.settings["download_path"] = loaded_settings[4] if len(loaded_settings) > 4 else ""
@@ -81,6 +81,29 @@ class DataStorage:
                         loaded_settings[key] = default_value
                 self.settings = loaded_settings
                 self.save()
+
+    def import_legacy_data(self):
+        """Copies list/history/settings over from a doccli install, if one is present.
+
+        otacli is a fork of doccli, so a first run on a machine that already ran doccli
+        should carry the user's data across instead of starting empty. The source files
+        are copied, never moved, so the doccli install keeps working.
+        """
+        if not os.path.isdir(self.legacy_config_dir):
+            return
+
+        copied = []
+        for name in ("mylist.json", "continue.json", "history.json"):
+            src = os.path.join(self.legacy_config_dir, name)
+            if os.path.isfile(src):
+                try:
+                    shutil.copy2(src, os.path.join(self.config_dir, name))
+                    copied.append(name)
+                except OSError:
+                    pass
+
+        if copied:
+            print(f"[+] Imported {', '.join(copied)} from your existing doccli data.")
 
     def save(self):
         """Zapisuje obecne zmienne na dysk."""

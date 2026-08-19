@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from docchi_api_connector import extract_lycoris_direct_link, get_players_list, get_english_players
 from ui_utils import clear, open_menu
 from anilist_connector import get_quick_episode_count
@@ -17,7 +17,7 @@ from storage import ds
 
 def w_download_season(details, episodes_list=None, base_download_dir=""):
     SLUG = details['slug']
-    TITLE = details.get('title_en') if ds.settings.get('language') == 'en' and details.get('title_en') else details['title']
+    TITLE = details.get('title_en') or details['title']
     MAL_ID = details.get('mal_id')
     
     how_many_episodes = get_quick_episode_count(MAL_ID)
@@ -31,13 +31,7 @@ def w_download_season(details, episodes_list=None, base_download_dir=""):
     if episodes_list is None:
         episodes_list = list(range(1, how_many_episodes + 1))
 
-    current_lang = ds.settings.get("language", "pl")
-    lang_choices = []
-    
-    if current_lang == "pl":
-        lang_choices.append(t("dl_lang_pl_sub"))
-        
-    # Zawsze pokazuj angielskie
+    lang_choices = [t("dl_lang_pl_sub")]
     lang_choices.extend([
         t("dl_lang_en_sub"),
         t("dl_lang_en_dub"),
@@ -77,7 +71,7 @@ def w_download_season(details, episodes_list=None, base_download_dir=""):
         quality_args = ["-S", f"res:{res}"]
 
     if not base_download_dir:
-        base_download_dir = os.path.join(os.getcwd(), "doccli_downloads")
+        base_download_dir = os.path.join(os.getcwd(), "otacli_downloads")
         
     safe_title = re.sub(r'[\\/*?:"<>|]', "", TITLE).strip()
     

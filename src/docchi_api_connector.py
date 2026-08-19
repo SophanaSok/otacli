@@ -9,7 +9,7 @@ from requests import get
 from termcolor import colored
 from curl_cffi import requests as cffi_requests
 
-# Doccli modules
+# otacli modules
 from i18n import t
 
 # Get list of players for episode

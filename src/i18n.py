@@ -1,363 +1,4 @@
-from storage import ds
-
 TEXTS = {
-    "pl": {
-        "yes": "Tak",
-        "no": "Nie",
-        "back": "Cofnij",
-        "cancel": "Anuluj",
-        "currently": "Obecnie",
-        "menu_main": "Menu główne",
-
-        # m_welcome
-        "menu_search": "Wyszukaj",
-        "menu_resume": "Kontynuuj oglądanie",
-        "menu_trending": "Anime na czasie",
-        "menu_calendar": "Kalendarz Premier",
-        "menu_mylist": "Moja lista",
-        "menu_library": "Moja Biblioteka (Offline)",
-        "menu_history": "Historia oglądania",
-        "menu_stats": "Statystyki doccli",
-        "menu_discord": "Dołącz do discorda",
-        "menu_settings": "Ustawienia",
-        "menu_exit": "Zamknij",
-        "welcome_prompt": "Wybierz co chcesz zrobić: ",
-        "status_connected": "🟢 STATUS: Połączono z kontem AniList!",
-        "status_disconnected": "🔴 STATUS: Brak połączenia z AniList (Skonfiguruj w Ustawieniach)",
-        "rpc_searching": "Szuka anime do obejrzenia...",
-        
-        # m_settings
-        "set_rpc": "Ustawienia Discord RPC",
-        "set_anilist": "Połącz / Zaktualizuj konto AniList",
-        "set_dl_path": "Zmień folder pobierania",
-        "set_quality": "Zmień domyślną jakość wideo",
-        "set_lang": "Zmień język / Change language",
-        "set_prompt": "Wybierz co chcesz skonfigurować: ",
-        
-        "rpc_q": "Czy chcesz aby znajomi na discordzie widzieli co oglądasz?",
-        "rpc_input": "Wpisz co tylko zechcesz! Będzie to wyświetlane w II linijce statusu. Zostaw puste jeśli chcesz domyślny status. [Min. 2 znaki] (Domyślnie: 'Używa doccli!') \n",
-        "rpc_def_status": "Watching anime via doccli!",
-        
-        "al_info1": "Zaraz otworzy się przeglądarka z prośbą o autoryzację aplikacji doccli na Twoim koncie AniList.",
-        "al_info2": "Po zatwierdzeniu, skopiuj Token (długi ciąg znaków) i wklej go poniżej.\n",
-        "al_err": "Nie udało się otworzyć przeglądarki! Wejdź ręcznie w ten link:\n{}\n",
-        "al_input": "Wklej swój AniList Access Token (lub zostaw puste by anulować):",
-        "al_success": "\n[+] Pomyślnie zapisano token! Od teraz doccli będzie automatycznie zapisywać postęp.",
-        "al_completed": "Ukończono",
-        
-        "dl_info": "[INFO] Obecny folder pobierania: {}",
-        "dl_help1": "Wpisz pełną ścieżkę do nowego folderu (np. D:\\Anime lub /home/user/Wideo).",
-        "dl_help2": "Zostaw to pole puste i wciśnij ENTER, aby przywrócić domyślny folder wewnątrz programu.\n",
-        "dl_input": "Podaj nową ścieżkę:",
-        "dl_reset": "\n[+] Przywrócono domyślny folder pobierania!",
-        "dl_success": "\n[+] Pomyślnie zmieniono folder zapisu na: {}",
-        "dl_err": "\n[-] Błąd podczas tworzenia folderu (Nieprawidłowa ścieżka?): {}",
-        
-        "qual_source": "Źródłowa",
-        "qual_prompt": "Wybierz preferowaną jakość dla odtwarzacza:",
-        "qual_success": "\n[+] Pomyślnie zmieniono jakość na: {}",
-        
-        "lang_prompt": "Wybierz język / Choose language:",
-        "lang_success": "\n[+] Zmieniono język na: Polski",
-
-        "dl_def_path": "Domyślny",
-        
-        # m_mylist
-        "mylist_sync": "[INFO] Trwa automatyczna synchronizacja z AniList...",
-        "mylist_prompt": "Wybierz anime: ",
-        "mylist_random": "🎲 Wylosuj anime z listy",
-        
-        # m_history
-        "hist_prompt": "Wybierz wpis aby przejść do szczegółów: ",
-        "hist_err_server": "Błąd: Nie udało się pobrać szczegółów z serwera.",
-        "hist_err_profile": "To anime nie ma przypisanego profilu w Docchi.",
-        
-        # m_find
-        "find_title": "Po tytule",
-        "find_title_en": "Po tytule EN",
-        "find_mal": "Mal ID",
-        "find_genre": "Po gatunku",
-        "find_prompt": "Wybierz jak chcesz wyszukać: ",
-        "find_search": "Szukaj: ",
-        
-        # genres
-        "genre_err": "Błąd: Nie znaleziono żadnych gatunków w bazie.",
-        "genre_prompt": "Wybierz gatunek, który Cię interesuje:",
-        "sort_trending": "Po popularności (Trendy AniList)",
-        "sort_alpha": "Alfabetycznie",
-        "sort_surprise": "Zaskocz mnie!",
-        "sort_prompt": "Co robimy dalej?",
-        "genre_res_prompt": "Wyniki dla gatunku [{}] (Znaleziono: {}):",
-        
-        # trending
-        "trend_prompt": "Wybierz: ",
-        
-        # m_details
-        "det_cont": "Kontynuuj od odcinka",
-        "det_first": "Oglądaj od 1 odcinka",
-        "det_list": "Lista odcinków",
-        "det_dl_season": "Pobierz cały sezon",
-        "det_dl_eps": "Pobierz wybrane odcinki",
-        "det_rm_list": "Usuń z mojej listy",
-        "det_add_list": "Dodaj do mojej listy",
-        "det_search": "Wyszukiwarka",
-        "det_prompt": "Wybierz co chcesz zrobić: ",
-        "det_ep_count": "Ilość odcinków",
-        "det_score": "Ocena",
-        "det_dl_input": "Wpisz numery do pobrania (np. 3 lub 4-6 lub 1,3,5) [Wszystkich odc: {}]:",
-        "det_dl_err": "Błąd: Nie podano poprawnych numerów odcinków!",
-        
-        # w_list
-        "list_err": "Nie znaleziono ilości odcinków [Błąd AniList lub brak MAL ID]",
-        "list_prompt": "Wybierz odcinek: ",
-        
-        # w_players
-        "pl_load": "[INFO] Odcinek {} - Ładowanie źródeł...",
-        "pl_pl_src": "Pobieranie polskich źródeł (docchi.pl)...",
-        "pl_en_src": "Pobieranie angielskich źródeł (anidb.app z weryfikacją MAL ID)...",
-        "pl_404": "Nie znaleziono odcinka w żadnej z baz (PL/EN) [Błąd 404]",
-        "pl_analyzing": "\nTrwa analizowanie, sprawdzanie źródeł na żywo i pobieranie jakości...",
-        "pl_unknown": "Nieznana",
-        "pl_none": "Brak",
-        "pl_link": "Link źródła",
-        "pl_chg_qual": "Zmień maksymalną jakość",
-        "pl_prompt": "Wybierz źródło: ",
-        "pl_start": "Rozpoczynanie odtwarzania...",
-        "pl_err_src": "Wybrane źródło nie jest dostępne, lub nie jest wspierane!",
-        "pl_qual_chg": "Zmieniono jakość odtwarzacza na {}",
-        
-        # w_default
-        "def_rpc_watch": "Ogląda: {} [{}/{}]",
-        "def_rpc_def": "Ogląda anime",
-        "def_chg_src": "Zmień źródło",
-        "def_next": "Następny odcinek",
-        "def_rate": "Oceń serię (AniList)",
-        "def_prev": "Poprzedni odcinek",
-        "def_list": "Lista odcinków",
-        "def_prompt": "Co chcesz zrobić? ",
-        "def_qmark": "Odcinek: {}/{}",
-        "def_finish": "Ukończono serię (Wróć do menu głównego)",
-        "rate_info": "[INFO] Pobieranie Twojej skali ocen z AniList...",
-        "rate_good": "(Dobrze)",
-        "rate_avg": "(Średnio)",
-        "rate_bad": "(Źle)",
-        "rate_no": "Nie chcę oceniać",
-        "rate_prompt": "Jak oceniasz tę serię w swojej skali?",
-        "rate_send": "[INFO] Wysyłanie oceny do AniList...",
-        "rate_ok": "[+] Ocena została pomyślnie zapisana na profilu!",
-        "rate_err": "[-] Wystąpił błąd podczas wysyłania oceny.",
-        "finish_msg": "🎉 Gratulacje! Ukończono anime: {}",
-        
-        # resume
-        "res_empty": "Brak historii oglądania do wznowienia.",
-        "res_resume": "Wznów: {} (Odcinek {})",
-        "res_prompt": "Co chcesz kontynuować?",
-        "res_load": "[INFO] Wczytywanie danych...",
-        
-        # calendar
-        "cal_info": "[INFO] Pobieranie kalendarza premier z AniList...",
-        "cal_err1": "[-] Nie udało się pobrać kalendarza lub brak nadchodzących premier.",
-        "cal_days": ["Pon", "Wto", "Śro", "Czw", "Pią", "Sob", "Nie"],
-        "cal_none": "Brak",
-        "cal_err2": "[-] Wśród 50 najbliższych premier na świecie, nie znaleziono żadnej w polskiej bazie.",
-        "cal_prompt": "Najbliższe premiery (Posortowane chronologicznie):",
-
-        # anilist_connector
-        "al_no_desc": "Brak opisu.",
-        "al_airing_rel": "Trwa emisja (Wydano: {})",
-        "al_airing": "Trwa emisja",
-        "al_none": "Brak",
-        "al_sync": "[INFO] Trwa synchronizacja historii z AniList (To zajmie tylko chwilę)...",
-        "al_skip_no_id": "[-] AniSkip: Brak MAL ID lub numeru odcinka. Markery wyłączone.",
-        "al_skip_ep": "Odcinek",
-        "al_skip_found": "[+] Znaleziono markery AniSkip! Wygenerowano {} przedziałów.",
-        "al_skip_not_found": "[-] Baza AniSkip nie posiada jeszcze markerów dla tego odcinka.",
-        "al_skip_rej": "[-] Odrzucenie z serwera AniSkip (Błąd {})",
-        "al_skip_err": "[BŁĄD] AniSkip awaria pobierania: {}",
-
-        # cache
-        "cache_conn": "[INFO] Łączenie z serwerami Docchi oraz AniList...",
-        "cache_fetch": "[INFO] Pobieranie bazy tytułów i trendów...",
-
-        # discord_integration
-        "rpc_loading": "Ładowanie...",
-        "rpc_large_text": "Doccli - oglądaj anime bezpośrednio ze swojego terminalu!",
-        "rpc_discord_btn": "Discord Projektu",
-
-        # docchi_api_connector
-        "anidb_dub": "dubbing",
-        "anidb_sub": "napisy",
-        "anidb_src": "źródło",
-
-        # downloader
-        "dl_err_ep_count": "Nie udało się ustalić liczby odcinków z AniList",
-        "dl_lang_pl_sub": "Polski (Napisy PL)",
-        "dl_lang_en_sub": "Angielski (Napisy EN)",
-        "dl_lang_en_dub": "Angielski (Dubbing EN)",
-        "dl_prompt_lang": "Wybierz preferowaną wersję językową dla pobieranych plików: ",
-        "dl_qual_best": "Najlepsza dostępna (Domyślna)",
-        "dl_prompt_qual": "Wybierz preferowaną jakość obrazu do pobrania: ",
-        "dl_folder_pl": "[PL]",
-        "dl_folder_en_sub": "[EN Napisy]",
-        "dl_folder_en_dub": "[EN Dubbing]",
-        "dl_info_prep": "[INFO] Przygotowywanie do pobrania {} (Wybrano {} odc.)...",
-        "dl_info_ver": "[INFO] Ustawiona wersja: {}",
-        "dl_info_qual": "[INFO] Ustawiona jakość: {}",
-        "dl_info_loc": "[INFO] Lokalizacja zapisu: {}",
-        "dl_err_no_src": "\n[BŁĄD] Nie znaleziono źródeł w wybranym języku dla odcinka {}. Pomijam...",
-        "dl_ep_file_prefix": " - Odcinek",
-        "dl_scan": "[*] Skanowanie jakości źródeł dla odcinka {}...",
-        "dl_err_all_dead": "\n[BŁĄD] Żadne ze źródeł dla odcinka {} nie działa.",
-        "dl_try_dl": "[*] Próbuję pobrać z: {} [{}] (Źródło {}/{})...",
-        "dl_prog_vid": "Pobieranie odc. {} [bold yellow](Ścieżka VIDEO)",
-        "dl_prog_aud": "Pobieranie odc. {} [bold yellow](Ścieżka AUDIO)",
-        "dl_prog_done": "[bold green]Ukończono odc. {}!",
-        "dl_prog_err": "[bold red]Błąd pobierania odc. {}!",
-        "dl_ytdlp_err": "\n   [Szczegóły błędu yt-dlp]: {}",
-        "dl_err_failed_all": "[BŁĄD] Żadne ze źródeł dla odcinka {} nie zadziałało.",
-        "dl_finished_all": "\n[ZAKOŃCZONO] Proces pobierania serii {} dobiegł końca!",
-        "dl_enter_to_return": "Naciśnij Enter, aby wrócić...",
-
-        # local_lib
-        "lib_err_no_dir": "[BŁĄD] Twój folder pobierania jeszcze nie istnieje ({}).",
-        "lib_err_no_anime": "Najpierw musisz pobrać jakieś anime!",
-        "lib_enter_to_return": "Naciśnij Enter, aby wrócić do menu...",
-        "lib_info_empty": "[INFO] Twój folder pobierania jest pusty.",
-        "lib_prompt_series": "Wybierz serię z dysku: ",
-        "lib_err_no_vids": "Brak plików wideo w folderze {}.",
-        "lib_watch_auto": "Oglądaj automatycznie",
-        "lib_back_to_series": "Wróć do wyboru serii",
-        "lib_prompt_ep": "Wybierz odcinek ({}): ",
-        "lib_auto_playing": "Oglądanie automatyczne: {}",
-        "lib_mpv_info": "Wciśnij 'Q' w obrębie okna MPV, lub zamknij je aby przerwać seans i wrócić do menu.",
-        "lib_auto_interrupted": "\n[INFO] Przerwano oglądanie automatyczne.",
-        "lib_press_enter": "Naciśnij Enter...",
-        "lib_err_no_mpv": "[BŁĄD] Nie znaleziono odtwarzacza mpv!",
-        "lib_playing_disk": "Odtwarzam z dysku: {}",
-
-        # player
-        "player_err": "[BŁĄD]",
-        "player_req_install": "Aby program działał wymagana jest instalacja",
-        "player_lycoris_ok": "[+] Sukces! Znaleziono bezpośredni link wideo.",
-        "player_lycoris_fail": "[-] Nie udało się zdekodować linku. Próbuję odtworzyć domyślnie...",
-        "player_unknown_anime": "Nieznane Anime",
-        "player_ep": "Odcinek",
-        "player_warn": "[UWAGA]",
-        "player_req_mega": "Aby oglądać z tego źródła wymagana jest instalacja",
-
-        # ui_utils
-        "ui_desc_header": "Opis z AniList:",
-        "ui_no_chafa": "Brak narzędzia 'chafa' do wyświetlania okładek.",
-        "ui_ctrl_c": "Ctrl+C = Cofnij / Menu główne",
-        "ui_not_found": "Nie znaleziono na liście, wyszukaj ponownie",
-
-        # run
-        "run_env_check": "[INFO] Sprawdzanie środowiska i zależności...",
-        "run_yt_installed_old": "Zainstalowano (Twoja: {} | Najnowsza: {})",
-        "run_yt_update_rec": "    [!] Zalecam aktualizację komendą: ({}), bo niektóre źródła mogą nie działać!",
-        "run_yt_installed_ok": "Zainstalowano (Wersja: {} - Aktualna!)",
-        "run_yt_installed": "Zainstalowano (Wersja: {})",
-        "run_yt_missing": "BRAK! Odtwarzanie i pobieranie nie będzie działać.",
-        "run_mpv_installed": "Zainstalowano (Wersja: {})",
-        "run_mpv_missing": "BRAK! Odtwarzanie wideo nie będzie działać.",
-        "run_chafa_installed": "Zainstalowano (Wersja: {} | Wyświetlanie okładek)",
-        "run_chafa_missing": "Brak [Wyświetlanie okładek]",
-        "run_mega_installed": "Zainstalowano (Wersja: {})",
-        "run_mega_missing": "Brak (Odtwarzanie ze źródeł Mega.nz)",
-        "run_upd_current": "Wersja programu: ",
-        "run_upd_latest": "Najnowsza wersja:",
-        "run_upd_avail": "Dostępna jest nowa wersja doccli!",
-        "run_upd_prompt": "Czy chcesz pobrać i zainstalować aktualizację automatycznie teraz?",
-        "run_upd_manual": "Szczegóły aktualizacji oraz instrukcję znajdziesz tutaj:",
-        "run_upd_dl": "\n[*] Pobieranie aktualizacji z GitHuba... To potrwa tylko chwilę.",
-        "run_upd_dl_ok": "[+] Pobrano pomyślnie. Rozpoczynam instalację...",
-        "run_upd_err": "[-] Błąd podczas pobierania/instalacji aktualizacji: {}",
-        "run_enter_cont": "Naciśnij Enter, aby kontynuować...",
-
-        # stats - pory dnia i nawyki
-        "stat_night": "Nocny Marek (22-04)",
-        "stat_early": "Ranny Ptaszek (04-12)",
-        "stat_chill": "Popołudniowy Chill (12-17)",
-        "stat_evening": "Wieczorny Seans (17-22)",
-        "stat_none": "Brak",
-        "stat_no_data": "Brak danych",
-        
-        # stats - tabele i etykiety
-        "stat_lbl_rank": "Obecna Ranga:",
-        "stat_lbl_doccli_eps": "Obejrzane w doccli:",
-        "stat_lbl_doccli_time": "Czas oglądania w doccli:",
-        "stat_lbl_total_eps": "Odcinki obejrzane ogółem:",
-        "stat_lbl_total_time": "Czas oglądania ogółem:",
-        "stat_lbl_last": "Ostatnio oglądane:",
-        
-        "stat_lbl_marathon": "Życiowy maraton (1 dzień):",
-        "stat_lbl_weekly": "Średnia tygodniowa:",
-        "stat_lbl_prime_time": "Główna pora seansów:",
-        "stat_lbl_net_disk": "Sieć vs Dysk:",
-        "stat_net_str": "sieć",
-        "stat_disk_str": "dysk",
-        
-        "stat_lbl_completed_rest": "Ukończone vs Reszta:",
-        "stat_lbl_planning": "Kupka wstydu (Planowane):",
-        "stat_lbl_oldest_queue": "Najdłużej w kolejce:",
-        "stat_lbl_top_genres": "Ulubione gatunki (Top 3):",
-        "stat_lbl_mean_score": "Średnia przyznanych ocen:",
-        "stat_lbl_al_status": "Status połączenia:",
-        "stat_al_no_data": "Brak danych z AniList",
-        
-        "stat_lbl_share": "Udział doccli w historii:",
-        "stat_lbl_size": "Zajęte miejsce na dysku:",
-        "stat_lbl_install": "Instalacja doccli:",
-        "stat_lbl_age": "Wiek profilu:",
-        "stat_days": "dni",
-        
-        # stats - panele
-        "stat_panel_profile": "🎬 Twój Profil",
-        "stat_panel_habits": "🧠 Twoje Nawyki (Doccli)",
-        "stat_panel_anilist": "☁️ Statystyki Konta (AniList)",
-        "stat_panel_library": "📁 Biblioteka i Dane",
-        "stat_panel_legend": "🏆 Legenda Rang",
-        
-        # stats - legenda rang (wymagania czasowe)
-        "stat_req_hours": "godz.",
-        "stat_return_prompt": "Naciśnij enter aby wrócić do menu głównego...",
-
-        # ranks
-        "rank_freshman": "Świeżak",
-        "rank_viewer": "Widz",
-        "rank_novice": "Nowicjusz",
-        "rank_disciple": "Uczeń",
-        "rank_squire": "Giermek",
-        "rank_genin": "Genin",
-        "rank_chuunin": "Chuunin",
-        "rank_jonin": "Jonin",
-        "rank_samurai": "Samuraj",
-        "rank_ronin": "Ronin",
-        "rank_shinobi": "Shinobi",
-        "rank_otaku": "Otaku",
-        "rank_scout": "Zwiadowca",
-        "rank_hunter": "Łowca",
-        "rank_assassin": "Zabójca",
-        "rank_supernova": "Supernova",
-        "rank_captain": "Kapitan",
-        "rank_master": "Mistrz",
-        "rank_hero": "Bohater",
-        "rank_archmage": "Arcymag",
-        "rank_king": "Król",
-        "rank_emperor": "Cesarz",
-        "rank_deity": "Bóstwo",
-        "rank_titan": "Tytan",
-        "rank_hikikomori": "Hikikomori",
-
-        "det_trailer": "Obejrzyj zwiastun",
-        "trailer_loading": "[INFO] Ładowanie zwiastuna w odtwarzaczu MPV...",
-
-        "menu_notifications": "Powiadomienia ({})",
-        "notif_title": "Powiadomienia",
-        "notif_empty": "Brak historii powiadomień.",
-        "notif_clear": "Wyczyść historię powiadomień",
-        "notif_new_ep": "Nowy odcinek: {} (Odc. {}) jest już dostępny!",
-    },
     "en": {
         "yes": "Yes",
         "no": "No",
@@ -374,32 +15,27 @@ TEXTS = {
         "menu_mylist": "My List",
         "menu_library": "My Library (Offline)",
         "menu_history": "Watch History",
-        "menu_stats": "Doccli Statistics",
-        "menu_discord": "Join our Discord",
+        "menu_stats": "otacli Statistics",
         "menu_settings": "Settings",
         "menu_exit": "Exit",
         "welcome_prompt": "Choose what you want to do: ",
         "status_connected": "🟢 STATUS: Connected to AniList!",
         "status_disconnected": "🔴 STATUS: Not connected to AniList (Configure in Settings)",
-        "rpc_searching": "Looking for anime to watch...",
         
         # m_settings
-        "set_rpc": "Discord RPC Settings",
         "set_anilist": "Connect / Update AniList account",
         "set_dl_path": "Change download path",
         "set_quality": "Change default video quality",
-        "set_lang": "Change language / Zmień język",
         "set_prompt": "Choose what to configure: ",
         
-        "rpc_q": "Do you want your Discord friends to see what you are watching?",
-        "rpc_input": "Type whatever you want! This will be displayed on the 2nd line of your status. Leave empty for default. [Min. 2 chars] (Default: 'Using doccli!') \n",
-        "rpc_def_status": "Watching anime via doccli!",
         
-        "al_info1": "A browser window will open asking you to authorize doccli on your AniList account.",
+        "al_no_client": "[!] AniList sync is not configured in this build of otacli.",
+        "al_no_client_help": "Register an AniList API client at https://anilist.co/settings/developer and set ANILIST_CLIENT_ID in src/main_module.py.",
+        "al_info1": "A browser window will open asking you to authorize otacli on your AniList account.",
         "al_info2": "After approving, copy the Token (long string of characters) and paste it below.\n",
         "al_err": "Could not open the browser! Please visit this link manually:\n{}\n",
         "al_input": "Paste your AniList Access Token (or leave empty to cancel):",
-        "al_success": "\n[+] Token saved successfully! Doccli will now automatically sync your progress.",
+        "al_success": "\n[+] Token saved successfully! otacli will now automatically sync your progress.",
         "al_completed": "Completed",
         
         "dl_info": "[INFO] Current download folder: {}",
@@ -414,8 +50,6 @@ TEXTS = {
         "qual_prompt": "Choose preferred player quality:",
         "qual_success": "\n[+] Quality successfully changed to: {}",
         
-        "lang_prompt": "Choose language / Wybierz język:",
-        "lang_success": "\n[+] Language changed to: English",
 
         "dl_def_path": "Default",
         
@@ -484,8 +118,6 @@ TEXTS = {
         "pl_qual_chg": "Player quality changed to {}",
         
         # w_default
-        "def_rpc_watch": "Watching: {} [{}/{}]",
-        "def_rpc_def": "Watching anime",
         "def_chg_src": "Change source",
         "def_next": "Next episode",
         "def_rate": "Rate series (AniList)",
@@ -536,10 +168,6 @@ TEXTS = {
         "cache_conn": "[INFO] Connecting to Docchi and AniList servers...",
         "cache_fetch": "[INFO] Fetching database of titles and trending...",
 
-        # discord_integration
-        "rpc_loading": "Loading...",
-        "rpc_large_text": "Doccli - watch anime directly from your terminal!",
-        "rpc_discord_btn": "Project Discord",
 
         # docchi_api_connector
         "anidb_dub": "dub",
@@ -623,7 +251,7 @@ TEXTS = {
         "run_mega_missing": "Missing (Playback from Mega.nz sources)",
         "run_upd_current": "Program version: ",
         "run_upd_latest": "Latest version:",
-        "run_upd_avail": "A new version of doccli is available!",
+        "run_upd_avail": "A new version of otacli is available!",
         "run_upd_prompt": "Do you want to download and install the update automatically now?",
         "run_upd_manual": "Update details and instructions can be found here:",
         "run_upd_dl": "\n[*] Downloading update from GitHub... This will just take a moment.",
@@ -641,12 +269,13 @@ TEXTS = {
         
         # stats - tabele i etykiety
         "stat_lbl_rank": "Current Rank:",
-        "stat_lbl_doccli_eps": "Watched in doccli:",
-        "stat_lbl_doccli_time": "Doccli watch time:",
+        "stat_lbl_otacli_eps": "Watched in otacli:",
+        "stat_lbl_otacli_time": "otacli watch time:",
         "stat_lbl_total_eps": "Total episodes watched:",
         "stat_lbl_total_time": "Total watch time:",
         "stat_lbl_last": "Last watched:",
         
+        "stat_unit_eps": "eps.",
         "stat_lbl_marathon": "Lifetime marathon (1 day):",
         "stat_lbl_weekly": "Weekly average:",
         "stat_lbl_prime_time": "Prime watch time:",
@@ -662,15 +291,15 @@ TEXTS = {
         "stat_lbl_al_status": "Connection status:",
         "stat_al_no_data": "No data from AniList",
         
-        "stat_lbl_share": "Doccli share in history:",
+        "stat_lbl_share": "otacli share in history:",
         "stat_lbl_size": "Disk space used:",
-        "stat_lbl_install": "Doccli installed:",
+        "stat_lbl_install": "otacli installed:",
         "stat_lbl_age": "Profile age:",
         "stat_days": "days",
         
         # stats - panele
         "stat_panel_profile": "🎬 Your Profile",
-        "stat_panel_habits": "🧠 Your Habits (Doccli)",
+        "stat_panel_habits": "🧠 Your Habits (otacli)",
         "stat_panel_anilist": "☁️ Account Stats (AniList)",
         "stat_panel_library": "📁 Library & Data",
         "stat_panel_legend": "🏆 Rank Legend",
@@ -717,7 +346,9 @@ TEXTS = {
     }
 }
 
+LANG = "en"
+
+
 def t(key: str) -> str:
-    """Returns translated text based on lang key."""
-    lang = ds.settings.get("language", "pl")
-    return TEXTS.get(lang, TEXTS["pl"]).get(key, TEXTS["pl"].get(key, key))
+    """Returns UI text for the given key."""
+    return TEXTS[LANG].get(key, key)

@@ -4,11 +4,10 @@ import os
 import requests
 
 # From pip
-from deep_translator import GoogleTranslator
 from requests import post
 from termcolor import colored
 
-# Doccli modules
+# otacli modules
 from storage import ds
 from i18n import t
 
@@ -102,14 +101,8 @@ def get_details_from_anilist(mal_id):
                 
                 if media.get('description'):
                     raw_desc = media['description']
-                    clean_desc = raw_desc.replace('<br>', '\n').replace('<i>', '').replace('</i>', '')
-                    
-                    try:
-                        current_lang = ds.settings.get("language", "pl")
-                        translated = GoogleTranslator(source='auto', target=current_lang).translate(clean_desc)
-                        description = translated
-                    except Exception:
-                        description = clean_desc
+                    # AniList already serves English descriptions, so no translation step
+                    description = raw_desc.replace('<br>', '\n').replace('<i>', '').replace('</i>', '')
 
                 episodes_total = media.get('episodes')
                 if not episodes_total:
@@ -559,7 +552,7 @@ def sync_history_with_anilist():
             try:
                 date_str = item[1:17]
                 dt_object = datetime.strptime(date_str, "%d/%m/%Y %H:%M")
-                source = "Doccli - Offline" if "| Offline" in item else "Doccli - Online"
+                source = "otacli - Offline" if "| Offline" in item else "otacli - Online"
                 ep_str, title, slug = "?", item, None
                 
                 if "[Odc: " in item:

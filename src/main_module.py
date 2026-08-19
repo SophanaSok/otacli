@@ -15,19 +15,24 @@ from concurrent.futures import ThreadPoolExecutor
 from termcolor import colored
 from InquirerPy import prompt
 
-# Doccli modules
+# otacli modules
 from storage import ds
 from cache import preload_series_cache, get_cached_series_list, get_cached_trending_list
 from ui_utils import clear, open_menu
 from downloader import w_download_season
 from stats import m_stats
-from menus_decor import MAIN_MENU, SZUKAJ, NA_CZASIE, MOJA_LISTA, HISTORIA, MOJA_BIBLIOTEKA, KALENDARZ, POWIADOMIENIA
-from discord_integration import update_rpc, set_running
+from menus_decor import MAIN_MENU, SEARCH, TRENDING, MY_LIST, HISTORY, MY_LIBRARY, CALENDAR, NOTIFICATIONS
 from docchi_api_connector import get_episodes_count_for_serie, get_players_list, get_details_for_serie, extract_lycoris_direct_link, get_english_players
 from anilist_connector import get_details_from_anilist, update_anilist_progress, get_anilist_plan_to_watch, sync_anilist_list_status, get_anilist_history, get_duration_by_malid, sync_history_with_anilist, get_quick_episode_count
 from player import mpv_play, kill_process, delayed_tracker
 from local_lib import m_local_library
 from i18n import t
+
+# AniList API client for this project. otacli ships without one: register your own at
+# https://anilist.co/settings/developer (redirect URL: https://anilist.co/api/v2/oauth/pin)
+# and paste its numeric ID here. Left empty, AniList sync stays switched off.
+# Do not reuse another project's client ID.
+ANILIST_CLIENT_ID = ""
 
 LAST_CHECK_TIME = 0
 
@@ -39,7 +44,7 @@ def get_notifications():
         
     seen_slugs = set()
     for item in ds.history:
-        if isinstance(item, dict) and item.get('source', '').startswith('Doccli - Online'):
+        if isinstance(item, dict) and item.get('source', '').startswith(('otacli - Online', 'Doccli - Online')):
             slug = item.get('slug')
             if slug and slug not in seen_slugs:
                 ep_str = str(item.get('episode', '1'))
@@ -70,7 +75,7 @@ def get_notifications():
         if known > 0 and ep_count > known:
             s = all_s_dict.get(mal_id_str)
             if s:
-                title = s.get('title_en') if ds.settings.get('language') == 'en' and s.get('title_en') else s.get('title', 'Anime')
+                title = s.get('title_en') or s.get('title', 'Anime')
                 msg = t("notif_new_ep").format(title, ep_count)
                 
                 already_exists = any(h.get('slug') == s.get('slug') and h.get('episode') == ep_count for h in history)
@@ -116,7 +121,7 @@ def m_notifications():
     
     choices.append(t("back"))
     
-    ans = open_menu(choices=choices, prompt=t("hist_prompt"), message=POWIADOMIENIA, height=10)
+    ans = open_menu(choices=choices, prompt=t("hist_prompt"), message=NOTIFICATIONS, height=10)
     
     if ans == t("back") or ans == choices[-1]:
         m_welcome()
@@ -141,7 +146,6 @@ def m_welcome():
     global LAST_CHECK_TIME
 
     preload_series_cache()
-    update_rpc(t("menu_main"), t("rpc_searching"))
 
     if time.time() - LAST_CHECK_TIME > 600:
         get_notifications()
@@ -162,7 +166,6 @@ def m_welcome():
         t("menu_history"),
         t("menu_stats"),
         t("menu_settings"),
-        t("menu_discord"),
         t("menu_exit")
     ]
 
@@ -194,62 +197,38 @@ def m_welcome():
     elif ans == choices[7]: m_history()
     elif ans == choices[8]: m_stats(); m_welcome()
     elif ans == choices[9]: m_settings()
-    elif ans == choices[10]: m_discord()
-    elif ans == choices[11]: set_running(False); sys.exit()
+    elif ans == choices[10]: sys.exit()
 
 
 def m_settings():
     def_dl = ds.settings.get("download_path", "")
     current_dl_path = def_dl if def_dl != "" else t("dl_def_path")
     current_quality = ds.settings.get("player_quality", "best")
-    current_lang = ds.settings.get("language", "pl")
 
     choices = [
-        t("set_rpc"),
         t("set_anilist"),
         f"{t('set_dl_path')} ({t('currently')}: {current_dl_path})",
         f"{t('set_quality')} ({t('currently')}: {current_quality})",
-        f"{t('set_lang')} ({t('currently')}: {current_lang.upper()})",
         t("menu_main")
     ]
     
     prompt_text = t("set_prompt")
-    ans = open_menu(choices=choices, prompt=prompt_text, height=8)
+    ans = open_menu(choices=choices, prompt=prompt_text, height=6)
     
     if ans == choices[0]:
-        rpc_choices = [{
-                "type": "list",
-                "message": t("rpc_q"),
-                "choices": [t("yes"), t("no")],
-            }]
-        res = prompt(questions=rpc_choices)
-
-        if res[0] == t("no"):
-            ds.settings["rpc_enabled"] = False
-            ds.save()
-            m_welcome()
-        if res[0] == t("yes"):
-            clear()
-            ds.settings["rpc_enabled"] = True
-            choices2 = [{"type": "input", "message": t("rpc_input"), "name": "status_dc"}]
-            res2 = prompt(questions=choices2)
-
-            if not res2['status_dc'] == "" and len(res2['status_dc']) > 1:
-                ds.settings["rpc_status"] = res2['status_dc']
-                ds.save()
-                m_welcome()
-            else:
-                ds.settings["rpc_status"] = t("rpc_def_status")
-                ds.save()
-                m_welcome()
-                
-    elif ans == choices[1]:
         clear()
-        CLIENT_ID = "16904"
+
+        if not ANILIST_CLIENT_ID:
+            print(colored(t("al_no_client"), "yellow"))
+            print(colored(t("al_no_client_help"), "cyan"))
+            time.sleep(6)
+            m_settings()
+            return
+
         print(colored(t("al_info1"), "cyan"))
         print(colored(t("al_info2"), "cyan"))
         
-        auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={CLIENT_ID}&response_type=token"
+        auth_url = f"https://anilist.co/api/v2/oauth/authorize?client_id={ANILIST_CLIENT_ID}&response_type=token"
         try:
             webbrowser.open(auth_url)
         except:
@@ -265,7 +244,7 @@ def m_settings():
             time.sleep(3)
         m_settings()
 
-    elif ans == choices[2]:
+    elif ans == choices[1]:
         clear()
         print(colored(t("dl_info").format(current_dl_path), "cyan"))
         print(colored(t("dl_help1"), "yellow"))
@@ -291,7 +270,7 @@ def m_settings():
         time.sleep(3)
         m_settings()
         
-    elif ans == choices[3]:
+    elif ans == choices[2]:
         quality_choices = [t("qual_source"), "1080p", "720p", "480p", "360p", t("back")]
         chosen = open_menu(choices=quality_choices, prompt=t("qual_prompt"), height=7)
         
@@ -305,30 +284,8 @@ def m_settings():
             time.sleep(2)
         m_settings()
 
-    elif ans == choices[4]:
-        lang_choices = ["Polski (pl)", "English (en)", t("back")]
-        chosen = open_menu(choices=lang_choices, prompt=t("lang_prompt"), height=5)
-        
-        if chosen == "Polski (pl)":
-            ds.settings["language"] = "pl"
-            ds.save()
-            print(colored(t("lang_success"), "green"))
-            time.sleep(2)
-        elif chosen == "English (en)":
-            ds.settings["language"] = "en"
-            ds.save()
-            print(colored(t("lang_success"), "green"))
-            time.sleep(2)
-            
-        m_settings()
-
-    elif ans == choices[5]:
+    elif ans == choices[3]:
         m_welcome()
-
-
-def m_discord():
-    webbrowser.open('https://discord.gg/Y4RcwbE5CJ')
-    m_welcome()
 
 
 def m_mylist():
@@ -369,7 +326,7 @@ def m_mylist():
         display_map[display_text] = element
 
     prompt_txt = t("mylist_prompt")
-    ans = open_menu(choices=choices, prompt=prompt_txt, message=MOJA_LISTA)
+    ans = open_menu(choices=choices, prompt=prompt_txt, message=MY_LIST)
     
     if ans == t("back"):
         m_welcome()
@@ -394,7 +351,7 @@ def m_history():
         display_map[display_text] = item
 
     prompt = t("hist_prompt")
-    ans = open_menu(choices=choices, prompt=prompt, message=HISTORIA)
+    ans = open_menu(choices=choices, prompt=prompt, message=HISTORY)
     
     if ans == choices[0]:
         m_welcome()
@@ -424,7 +381,7 @@ def m_find():
     ]
 
     prompt = t("find_prompt")
-    ans = open_menu(choices=choices, prompt=prompt, height=5, message=SZUKAJ)
+    ans = open_menu(choices=choices, prompt=prompt, height=5, message=SEARCH)
 
     if ans == choices[0]:
         perform_search('title')
@@ -445,7 +402,7 @@ def perform_search(search_key):
     choices.append(t("back"))
     
     prompt = t("find_search")
-    ans = open_menu(choices=choices, prompt=prompt, message=SZUKAJ)
+    ans = open_menu(choices=choices, prompt=prompt, message=SEARCH)
     
     if ans == t("back"):
         m_find()
@@ -480,7 +437,7 @@ def perform_genre_search():
     ans_genre = open_menu(
         choices=genres_list, 
         prompt=t("genre_prompt"), 
-        message=SZUKAJ, 
+        message=SEARCH, 
         height=10
     )
     
@@ -494,7 +451,7 @@ def perform_genre_search():
             filtered_series.append(serie)
 
     sort_choices = [t("sort_trending"), t("sort_alpha"), t("sort_surprise"), t("back")]
-    ans_sort = open_menu(choices=sort_choices, prompt=t("sort_prompt"), message=SZUKAJ, height=6)
+    ans_sort = open_menu(choices=sort_choices, prompt=t("sort_prompt"), message=SEARCH, height=6)
     
     if ans_sort == t("back"):
         perform_genre_search()
@@ -528,7 +485,7 @@ def perform_genre_search():
     ans_anime = open_menu(
         choices=choices_titles, 
         prompt=t("genre_res_prompt").format(ans_genre, len(filtered_series)), 
-        message=SZUKAJ, 
+        message=SEARCH, 
         height=10
     )
 
@@ -565,7 +522,7 @@ def m_trending():
 
     prompt = t("trend_prompt")
 
-    ans = open_menu(choices=choices, prompt=prompt, message=NA_CZASIE)
+    ans = open_menu(choices=choices, prompt=prompt, message=TRENDING)
     
     if ans == choices[0]:
         m_welcome()
@@ -740,17 +697,15 @@ def w_players(SLUG, NUMBER, err=''):
 
     players = []
     details = ds.continue_data[0]
-    current_lang = ds.settings.get("language", "pl")
 
     clear()
     print(colored(t("pl_load").format(NUMBER), "cyan"))
     
-    if current_lang == "pl":
-        print(colored(t("pl_pl_src"), "yellow"))
-        pl_players_list = get_players_list(SLUG, NUMBER)
-        if pl_players_list != 404 and isinstance(pl_players_list, list):
-            for player in pl_players_list:
-                players.append(["[PL]", player['player_hosting'], player['player']])
+    print(colored(t("pl_pl_src"), "yellow"))
+    pl_players_list = get_players_list(SLUG, NUMBER)
+    if pl_players_list != 404 and isinstance(pl_players_list, list):
+        for player in pl_players_list:
+            players.append(["[PL]", player['player_hosting'], player['player']])
 
     print(colored(t("pl_en_src"), "yellow"))
     if details:
@@ -896,11 +851,6 @@ def w_default(SLUG, NUMBER, process):
     if how_many_episodes <= 0:
         how_many_episodes = NUMBER
 
-    if ds.settings.get("rpc_enabled", True):
-        update_rpc(t("def_rpc_watch").format(details.get('title', 'Anime'), NUMBER, how_many_episodes), ds.settings.get("rpc_status", t("rpc_def_status")))
-    else:
-        update_rpc(t("def_rpc_def"), ds.settings.get("rpc_status", t("rpc_def_status")))
-
     threading.Thread(target=delayed_tracker, args=(details, NUMBER, process, how_many_episodes), daemon=True).start()
 
     choices = [t("def_chg_src")]
@@ -923,12 +873,10 @@ def w_default(SLUG, NUMBER, process):
 
     if ans == choices[0]:
         kill_process(process)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         w_players(SLUG, NUMBER)
 
     elif ans == t("def_next"):
         kill_process(process)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         next_ep = NUMBER + 1
         ds.continue_data[1] = next_ep
         ds.save()
@@ -988,7 +936,6 @@ def w_default(SLUG, NUMBER, process):
                     print(colored(t("rate_err"), "red"))
                 time.sleep(2)
                 
-        update_rpc(t("menu_main"), t("rpc_searching"))
         m_welcome()
 
     elif ans == t("def_finish"):
@@ -996,12 +943,10 @@ def w_default(SLUG, NUMBER, process):
         clear()
         print(colored(t("finish_msg").format(details.get('title', t("player_unknown_anime"))), "green"))
         time.sleep(2)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         m_welcome()
 
     elif ans == t("def_prev"):
         kill_process(process)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         prev_ep = NUMBER - 1 if NUMBER >= 2 else NUMBER
         ds.continue_data[1] = prev_ep
         ds.save()
@@ -1009,12 +954,10 @@ def w_default(SLUG, NUMBER, process):
         
     elif ans == t("def_list"):
         kill_process(process)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         w_list(SLUG)
         
     elif ans == t("menu_main"):
         kill_process(process)
-        update_rpc(t("menu_main"), t("rpc_searching"))
         m_welcome()
 
 
@@ -1023,7 +966,7 @@ def m_resume():
     seen_slugs = set()
 
     for item in ds.history:
-        if isinstance(item, dict) and item.get('source', '').startswith('Doccli - Online'):
+        if isinstance(item, dict) and item.get('source', '').startswith(('otacli - Online', 'Doccli - Online')):
             slug = item.get('slug')
             if slug and slug not in seen_slugs:
                 ep_str = str(item.get('episode', '1'))
@@ -1170,7 +1113,7 @@ def m_calendar():
         choices=choices, 
         prompt=t("cal_prompt"), 
         height=12,
-        message=KALENDARZ
+        message=CALENDAR
     )
 
     if ans == t("back"):
